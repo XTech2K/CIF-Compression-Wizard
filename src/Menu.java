@@ -6,6 +6,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.IOException;
 
@@ -31,7 +33,8 @@ public class Menu extends JFrame
     public static final int DEFAULT_HEIGHT = 600;
 
     /* --- Fields relating to the compression program. --- */
-    private Image displayedImage;
+    private Image image;
+    private Image scaledImage;
     private int compressionPercent;
     private boolean animate;
 
@@ -46,6 +49,7 @@ public class Menu extends JFrame
         setContentPane(pWindow);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		setMinimumSize(new Dimension(800, 600));
 
         /* Setting up listeners for all the UI components that need them. */
         sPercent.addChangeListener(new ChangeListener()
@@ -54,7 +58,7 @@ public class Menu extends JFrame
             public void stateChanged(ChangeEvent e)
             {
                 JSlider s = (JSlider)e.getSource();
-                if(s != null && !s.getValueIsAdjusting())
+                if(s != null)
                 {
                     compressionPercent = s.getValue();
                     tPercent.setText(compressionPercent + "%");
@@ -67,7 +71,8 @@ public class Menu extends JFrame
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                JFileChooser jfc = new JFileChooser();
+            	String userHomeDir = System.getProperty("user.home");
+                JFileChooser jfc = new JFileChooser(userHomeDir + "/Pictures");
                 jfc.setFileFilter(new FileNameExtensionFilter("PNG & CIF", "png", "cif"));
                 if(jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
                 {
@@ -78,7 +83,7 @@ public class Menu extends JFrame
 
                     try
                     {
-                        displayedImage = ImageIO.read(f.getAbsoluteFile());
+						image = ImageIO.read(f.getAbsoluteFile());
                     }
                     catch(IOException ioe)
                     {
@@ -86,8 +91,11 @@ public class Menu extends JFrame
                                 + f.getName() + ".");
                     }
 
+                    //keep a version of the image that is scaled to its containing JPanel
+					scaledImage = image.getScaledInstance(pImage.getWidth(), pImage.getHeight(), Image.SCALE_SMOOTH);
+
                     //need to force a repaint of the window, otherwise would wait until window is dirty
-                    validate();
+                    revalidate();
                     repaint();
                 }
             }
@@ -129,6 +137,22 @@ public class Menu extends JFrame
 				animate = !animate;
 			}
 		});
+
+		pImage.addComponentListener(new ComponentAdapter()
+		{
+			@Override
+			public void componentResized(ComponentEvent e)
+			{
+				super.componentResized(e);
+				//maintain an image that is scaled to its containing JPanel
+				if(image != null)
+				{
+					scaledImage = image.getScaledInstance(e.getComponent().getWidth(),
+														  e.getComponent().getHeight(),
+														  Image.SCALE_SMOOTH);
+				}
+			}
+		});
 	}
 
     /* Used to customize the drawing of the panel that the image is displayed in. */
@@ -140,7 +164,7 @@ public class Menu extends JFrame
             public void paintComponent(Graphics g)
             {
                 super.paintComponent(g);
-                g.drawImage(displayedImage, 0, 0, getWidth(), getHeight(), null);
+                g.drawImage(scaledImage, 0, 0, this);
             }
         };
     }
