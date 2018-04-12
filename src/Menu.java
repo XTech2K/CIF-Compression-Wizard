@@ -33,9 +33,16 @@ public class Menu extends JFrame
     /* --- Fields relating to the compression program. --- */
     private Image displayedImage;
     private int compressionPercent;
+    private boolean animate;
+
+    /* --- Reference to a Controller for the Menu to interact with the Compression program. --- */
+	private Controller controller;
 
     public Menu()
     {
+    	controller = new Controller();
+    	animate = false;
+
         setContentPane(pWindow);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -114,7 +121,15 @@ public class Menu extends JFrame
                 //File f = controller.getImageAsCIF();
             }
         });
-    }
+		cAnimate.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				animate = !animate;
+			}
+		});
+	}
 
     /* Used to customize the drawing of the panel that the image is displayed in. */
     private void createUIComponents()
