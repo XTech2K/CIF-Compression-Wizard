@@ -32,8 +32,8 @@ public class ImageRegions extends DisjointSets {
 
 	}
 
-	public ImageRegions fromFile(File file) throws IOException {
-		return new ImageRegions(ImageIO.read(file));
+	public ImageRegions(File file) throws IOException {
+		this(ImageIO.read(file));
 	}
 
 	public int getID(Pixel p) {
@@ -48,8 +48,7 @@ public class ImageRegions extends DisjointSets {
 	 * @throws IllegalArgumentException if root1 or root2 are not distinct
 	 */
 	@Override
-	public int union(int root1, int root2)
-	{
+	public int union(int root1, int root2) {
 		int finalRoot = super.union(root1, root2);
 		int subRoot = finalRoot == root1 ? root2 : root1;
 
@@ -59,8 +58,7 @@ public class ImageRegions extends DisjointSets {
 
 	}
 
-	public Region get(int root)
-	{
+	public Region get(int root) {
 		assertIsRoot(root);
 		return regions[root];
 	}
@@ -112,8 +110,31 @@ public class ImageRegions extends DisjointSets {
 
 	}
 
+	public int maxSize() {
+		return s.length;
+	}
+
 	public int getSize() {
 		return this.size;
+	}
+
+	public Image getCompressed() {
+
+		BufferedImage compressed = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+
+		for (Region r : regions) {
+			Color c = r.getColor();
+			for (Pixel p : r) {
+				compressed.setRGB(p.x, p.y, c.getRGB());
+			}
+		}
+
+		return compressed;
+
+	}
+
+	public ImageRegions reset() {
+		return new ImageRegions(this.image);
 	}
 
 }

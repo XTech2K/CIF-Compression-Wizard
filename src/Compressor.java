@@ -5,16 +5,18 @@ public class Compressor {
 
 	private ImageRegions ir;
 
-	public Compressor(ImageRegions ir)
-	{
+	public Compressor(ImageRegions ir) {
 		this.ir = ir;
 	}
 
-	public void segment(int K)
-	{
-		if(K<2)
-		{
-			throw new IllegalArgumentException();
+	public void compress(int K) {
+
+		if (K < 1 || K > ir.maxSize()) {
+			throw new IllegalArgumentException("oof");
+		}
+
+		if (K > ir.getSize()) {
+			ir = ir.reset();
 		}
 
 		// Create PriorityQueue and add all adjacent pixels' similaritites to it
@@ -59,78 +61,12 @@ public class Compressor {
 
 		}
 
-		//Hint: the algorithm is not fast and you are processing many pixels
-		//      (e.g., 10,000 pixel for a small 100 by 100 image)
-		//      output a "." every 100 unions so you get some progress updates.
 	}
 
-	//Task 5: Output results (10%)
-	//Recolor all pixels with the average color and save output image
-//	public void outputResults(int K)
-//	{
-//		//collect all sets
-//		int region_counter=1;
-//		ArrayList<Pair<Integer>> sorted_regions = new ArrayList<Pair<Integer>>();
-//
-//		int width = this.image.getWidth();
-//		int height = this.image.getHeight();
-//		for(int h=0; h<height; h++){
-//			for(int w=0; w<width; w++){
-//				int id=getID(new Pixel(w,h));
-//				int setid=ir.find(id);
-//				if(id!=setid) continue;
-//				sorted_regions.add(new Pair<Integer>(ir.get(setid).size(),setid));
-//			}//end for w
-//		}//end for h
-//
-//		//sort the regions
-//		Collections.sort(sorted_regions, new Comparator<Pair<Integer>>(){
-//			@Override
-//			public int compare(Pair<Integer> a, Pair<Integer> b) {
-//				if(a.p!=b.p) return b.p-a.p;
-//				else return b.q-a.q;
-//			}
-//		});
-//
-//		//recolor and output region info
-//
-//		int i = 1; // Keep region counter for display purposes
-//		for (Pair<Integer> region : sorted_regions) {
-//
-//			// Get set and compute color
-//			Set<Pixel> set = ir.get(region.q);
-//			Color c = computeAverageColor(set);
-//
-//			// Set all pixels from the current set to its color value
-//			for (Pixel p : set) {
-//				image.setRGB(p.p, p.q, c.getRGB());
-//			}
-//
-//			// Print info about current region and increment counter
-//			System.out.printf("region %d size= %d color=%s\n", i, region.p, c.toString());
-//			i++;
-//
-//		}
-//
-//		//Hint: Use image.setRGB(x,y,c.getRGB()) to change the color of a pixel (x,y) to the given color "c"
-//
-//		//save output image
-//		String out_filename = img_filename+"_seg_"+K+".png";
-//		try
-//		{
-//			File ouptut = new File(out_filename);
-//			ImageIO.write(this.image, "png", ouptut);
-//			System.err.println("- Saved result to "+out_filename);
-//		}
-//		catch (Exception e) {
-//			System.err.println("! Error: Failed to save image to "+out_filename);
-//		}
-//	}
-
-	//this class represents the similarity between the colors of two adjacent pixels or regions
+	//this class represents the similarity between the colors of two adjacent regions
 	private class Similarity implements Comparable<Similarity> {
 
-		//a pair of ajacent pixels or regions (represented by the "root" pixels)
+		//a pair of adjacent regions
 		Region r1;
 		Region r2;
 
@@ -163,8 +99,7 @@ public class Compressor {
 
 		}
 
-		public int compareTo( Similarity other ) {
-			//remove ambiguity~ update: 11/28/2017
+		public int compareTo(Similarity other) {
 			int diff=this.distance - other.distance;
 			if(diff!=0) return diff;
 			diff=this.r1.getRoot().compareTo(other.r1.getRoot());
