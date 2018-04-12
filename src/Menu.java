@@ -1,11 +1,7 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
@@ -28,9 +24,10 @@ public class Menu extends JFrame
     private JButton bSaveCIF;
     private JLabel aCompressAmount;
     private JTextField tPercent;
+	private JPanel pSpacer;
 
-    public static final int DEFAULT_WIDTH = 800;
-    public static final int DEFAULT_HEIGHT = 600;
+	public static final int DEFAULT_WIDTH = 800;
+    public static final int DEFAULT_HEIGHT = 800;
 
     /* --- Fields relating to the compression program. --- */
     private Image image;
@@ -47,96 +44,95 @@ public class Menu extends JFrame
     	animate = false;
 
         setContentPane(pWindow);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		setMinimumSize(new Dimension(800, 600));
+		setMinimumSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
-        /* Setting up listeners for all the UI components that need them. */
-        sPercent.addChangeListener(new ChangeListener()
-        {
-            @Override
-            public void stateChanged(ChangeEvent e)
-            {
-                JSlider s = (JSlider)e.getSource();
-                if(s != null)
-                {
-                    compressionPercent = s.getValue();
-                    tPercent.setText(compressionPercent + "%");
-                }
-            }
-        });
+        /* --- Setting up listeners for all the UI components that need them. --- */
 
-        bLoad.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-            	String userHomeDir = System.getProperty("user.home");
-                JFileChooser jfc = new JFileChooser(userHomeDir + "/Pictures");
-                jfc.setFileFilter(new FileNameExtensionFilter("PNG & CIF", "png", "cif"));
-                if(jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
-                {
-                    File f = jfc.getSelectedFile();
-                    JOptionPane.showMessageDialog(null, "Chose to open " + f.getName() + ".");
-
-                    //TODO: if controller.setImageFile(f) succeeds then display image (for now always try to display)
-
-                    try
-                    {
-						image = ImageIO.read(f.getAbsoluteFile());
-                    }
-                    catch(IOException ioe)
-                    {
-                        JOptionPane.showMessageDialog(null, "Could not read image from "
-                                + f.getName() + ".");
-                    }
-
-                    //keep a version of the image that is scaled to its containing JPanel
-					scaledImage = image.getScaledInstance(pImage.getWidth(), pImage.getHeight(), Image.SCALE_SMOOTH);
-
-                    //need to force a repaint of the window, otherwise would wait until window is dirty
-                    revalidate();
-                    repaint();
-                }
-            }
-        });
-
-        bCompress.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                //TODO: Call controller to compress image, receive new image, update display
-            }
-        });
-
-        bSavePNG.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                //TODO: Call controller to get file for this image as a PNG
-                //File f = controller.getImageAsPNG();
-            }
-        });
-
-        bSaveCIF.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                //TODO: Call controller to get file for this image as a CIF
-                //File f = controller.getImageAsCIF();
-            }
-        });
-		cAnimate.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
+        sPercent.addChangeListener(e -> {
+			JSlider s = (JSlider)e.getSource();
+			if(s != null)
 			{
-				animate = !animate;
+				compressionPercent = s.getValue();
+				tPercent.setText(compressionPercent + "%");
 			}
 		});
+
+        bLoad.addActionListener(e -> {
+			String userHomeDir = System.getProperty("user.home");
+			JFileChooser jfc = new JFileChooser(userHomeDir + "/Pictures");
+			jfc.setFileFilter(new FileNameExtensionFilter("PNG & CIF", "png", "cif"));
+			if(jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+			{
+				File f = jfc.getSelectedFile();
+
+				//TODO: if controller.setImageFile(f) succeeds then display image (for now always try to display)
+
+				try
+				{
+					image = ImageIO.read(f.getAbsoluteFile());
+				}
+				catch(IOException ioe)
+				{
+					JOptionPane.showMessageDialog(null, "Could not read image from "
+							+ f.getName() + ".");
+					return;
+				}
+
+				//keep a version of the image that is scaled to its containing JPanel
+				scaledImage = image.getScaledInstance(pImage.getWidth(), pImage.getHeight(), Image.SCALE_SMOOTH);
+
+				//TODO: Debugging - remove.
+				System.out.println("image width, height = " + image.getWidth(null) + "," + image.getHeight(null));
+				System.out.println("scaled image width, height = " + scaledImage.getWidth(null) + "," + scaledImage.getHeight(null));
+
+				//need to force a repaint of the window, otherwise would wait until window is dirty
+				revalidate();
+				repaint();
+			}
+		});
+
+        bCompress.addActionListener(e -> {
+			//TODO: Relies on Controller.compressImage
+			if(!controller.compressImage(compressionPercent, animate))
+			{
+				//compression failed?
+				JOptionPane.showMessageDialog(null, "Failed to compress image.");
+			}
+		});
+
+        bSavePNG.addActionListener(e -> {
+			String userHomeDir = System.getProperty("user.home");
+			JFileChooser jfc = new JFileChooser(userHomeDir + "/Pictures");
+			if(jfc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+			{
+				//TODO: Relies on Controller.saveImageAsPNG
+				File f = jfc.getSelectedFile();
+				if(!controller.saveImageAsPNG(f))
+				{
+					//image could not be saved?
+					JOptionPane.showMessageDialog(null, "Failed to save image.");
+				}
+			}
+		});
+
+        bSaveCIF.addActionListener(e -> {
+			String userHomeDir = System.getProperty("user.home");
+			JFileChooser jfc = new JFileChooser(userHomeDir + "/Pictures");
+			if(jfc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+			{
+				//TODO: Relies on Controller.saveImageAsCIF
+				File f = jfc.getSelectedFile();
+				if(!controller.saveImageAsCIF(f))
+				{
+					//image could not be saved?
+					JOptionPane.showMessageDialog(null, "Failed to save image.");
+				}
+			}
+		});
+
+		cAnimate.addActionListener(e -> animate = !animate);
 
 		pImage.addComponentListener(new ComponentAdapter()
 		{
@@ -150,6 +146,8 @@ public class Menu extends JFrame
 					scaledImage = image.getScaledInstance(e.getComponent().getWidth(),
 														  e.getComponent().getHeight(),
 														  Image.SCALE_SMOOTH);
+					//TODO: Debugging - remove
+					System.out.println("scaled image width, height = " + scaledImage.getWidth(null) + "," + scaledImage.getHeight(null));
 				}
 			}
 		});
