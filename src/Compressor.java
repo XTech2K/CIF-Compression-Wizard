@@ -63,6 +63,14 @@ public class Compressor {
 
 	}
 
+	private static int compareColors(Color c1, Color c2) {
+		int r = (c1.getRed()-c2.getRed());
+		int g = (c1.getGreen()-c2.getGreen());
+		int b = (c1.getBlue()-c2.getBlue());
+
+		return r*r+g*g+b*b;
+	}
+
 	//this class represents the similarity between the colors of two adjacent regions
 	private class Similarity implements Comparable<Similarity> {
 
@@ -77,26 +85,12 @@ public class Compressor {
 		Similarity(Region r1, Region r2) {
 			this.r1 = r1;
 			this.r2 = r2;
-			this.distance = calcDistance();
-		}
-
-		private int getDifference(Color c1, Color c2)
-		{
-			int r = (c1.getRed()-c2.getRed());
-			int g = (c1.getGreen()-c2.getGreen());
-			int b = (c1.getBlue()-c2.getBlue());
-
-			return r*r+g*g+b*b;
-		}
-
-		private int calcDistance() {
 
 			Color avgColor = Region.avgColor(r1, r2);
-			int d1 = getDifference(r1.getColor(), avgColor);
-			int d2 = getDifference(r2.getColor(), avgColor);
+			int d1 = compareColors(r1.getColor(), avgColor);
+			int d2 = compareColors(r2.getColor(), avgColor);
 
-			return d1 * r1.getSize() + d2 * r2.getSize();
-
+			this.distance = d1 * r1.getSize() + d2 * r2.getSize();
 		}
 
 		public int compareTo(Similarity other) {
