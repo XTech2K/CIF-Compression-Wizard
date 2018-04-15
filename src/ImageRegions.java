@@ -65,8 +65,7 @@ public class ImageRegions extends DisjointSets {
  
     /**
      * Finds the region in which a provided root index lies
-     * @param the provided integer array index to a root
-     * @param root2 the root of set 2
+     * @param root the provided integer array index to a root
      * @return the region that the root makes up
      */
     public Region get(int root) {
@@ -145,19 +144,26 @@ public class ImageRegions extends DisjointSets {
     public int getSize() {
         return this.size;
     }
- 
+
+    public Image getImage() {
+        return this.image;
+    }
+
     /**
      * creates a buffered image and sets the value of each pixel in the image to the appropriate new value
      * @return the compressed image
      */
-    public Image getCompressed() {
+    public BufferedImage getCompressed() {
 
         BufferedImage compressed = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
 
-        for (Region r : regions) {
-            Color c = r.getColor();
-            for (Pixel p : r) {
-                compressed.setRGB(p.x, p.y, c.getRGB());
+        for (int i = 0; i < s.length; i++) {
+            if (s[i] < 0) {
+                Region r = regions[i];
+                Color c = r.getColor();
+                for (Pixel p : r) {
+                    compressed.setRGB(p.x, p.y, c.getRGB());
+                }
             }
         }
 

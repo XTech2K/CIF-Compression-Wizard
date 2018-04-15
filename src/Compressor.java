@@ -36,7 +36,7 @@ public class Compressor {
             // Get Similarity with the smallest distance and determine pixels and roots
             Similarity toUnion = pQueue.remove();
             int p1 = ir.getID(toUnion.r1.getRoot());
-            int p2 = ir.getID(toUnion.r1.getRoot());
+            int p2 = ir.getID(toUnion.r2.getRoot());
             int root1 = ir.find(p1);
             int root2 = ir.find(p2);
 

@@ -16,6 +16,7 @@ public class DisjointSets
     public DisjointSets(int numElements)
     {
         this.s = new int[ numElements ];
+        this.size = numElements;
 
         for( int i = 0; i < s.length; i++ )
             s[i] = -1;
@@ -40,14 +41,14 @@ public class DisjointSets
         if( s[ root2 ] < s[ root1 ]) { //root 2 is deeper
             finalRoot = root2;
             s[root1] = root2;
-        } else
-            {
-                finalRoot = root1;
-                if( s[ root1 ] == s[ root2 ])
-                    s[ root1 ]--; //update height if same
-                s[ root2 ] = root1; //make root1 new root
-            }
+        } else {
+            finalRoot = root1;
+            if( s[ root1 ] == s[ root2 ])
+                s[ root1 ]--; //update height if same
+            s[ root2 ] = root1; //make root1 new root
+        }
 
+        size--;
         return finalRoot;
 
     }

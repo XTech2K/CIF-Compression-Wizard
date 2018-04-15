@@ -1,11 +1,16 @@
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 public class Controller {
-    private Image baseImage;
-    private ImageRegions compressedImage;
+    private ImageRegions ir;
+    private Compressor compressor;
 
     public Controller() {
+        this.ir = null;
+        this.compressor = null;
     }
 
     /**
@@ -13,29 +18,50 @@ public class Controller {
      * and sets the Controller's baseImage to that image.
      */
     public boolean setImageFile(File f) {
-        return false;
+        try {
+            ir = new ImageRegions(f);
+            compressor = new Compressor(ir);
+            return true;
+        } catch (IOException E) {
+            return false;
+        }
     }
 
     /**
      * Returns the base image that the controller is working with.
      */
     public Image getBaseImage() {
-        return null;
+        return ir.getImage();
     }
 
     /**
      * Calls the Compressor on the base image, given the options from the Menu.
      * Need to think about what failure conditions might be.
      */
-    public boolean compressImage(int percent, boolean animate) {
-        return false;
+    public boolean compressImage(int K, boolean animate) {
+        if (ir == null) {
+            throw new RuntimeException("ImageRegions never initialized");
+        }
+        //int K = ir.maxSize() * percent / 100;
+        try {
+            compressor.compress(K);
+            return true;
+        } catch (IllegalArgumentException E) {
+            return false;
+        }
     }
 
     /**
      * Saves the compressed image as a PNG to the disk at the location specified by the user.
      */
     public boolean saveImageAsPNG(File f) {
-        return false;
+        BufferedImage image = ir.getCompressed();
+        try {
+            ImageIO.write(image, "png", f);
+            return true;
+        } catch (IOException E) {
+            return false;
+        }
     }
 
     /**
