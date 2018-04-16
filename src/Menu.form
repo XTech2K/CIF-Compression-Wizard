@@ -50,6 +50,7 @@
                 </constraints>
                 <properties>
                   <majorTickSpacing value="10"/>
+                  <maximum value="99"/>
                   <minorTickSpacing value="5"/>
                   <paintLabels value="false"/>
                   <paintTicks value="true"/>
@@ -133,17 +134,8 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Load a PNG or CIF"/>
-              <toolTipText value="Choose an image to compress."/>
-            </properties>
-          </component>
-          <component id="7c995" class="javax.swing.JButton" binding="bCompress">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Compress Image"/>
-              <toolTipText value="Perform the compression and display the resulting image."/>
+              <text value="Load an image"/>
+              <toolTipText value="Choose an image to compress. Allows PNG and JPEG."/>
             </properties>
           </component>
           <component id="c15ec" class="javax.swing.JButton" binding="bSavePNG">
@@ -151,17 +143,17 @@
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Save as a PNG"/>
-              <toolTipText value="Save the compressed image to a location. Choose this to be able to view the image on any device."/>
+              <text value="Save as PNG"/>
+              <toolTipText value="Save the compressed image to a location as a PNG."/>
             </properties>
           </component>
-          <component id="7446a" class="javax.swing.JButton" binding="bSaveCIF">
+          <component id="7c995" class="javax.swing.JButton" binding="bCompress">
             <constraints>
-              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Save as a CIF"/>
-              <toolTipText value="Save the compressed image to a location. Choose this to reduce the total filesize of the image. This format cannot be opened by most image viewers."/>
+              <text value="Compress Image"/>
+              <toolTipText value="Perform the compression and display the resulting image."/>
             </properties>
           </component>
         </children>
