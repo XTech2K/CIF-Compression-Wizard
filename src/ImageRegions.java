@@ -36,7 +36,7 @@ public class ImageRegions extends DisjointSets {
             for (int x = 0; x < image.getWidth(); x++) {
 
                 Pixel p = new Pixel(x, y);
-                Color c = new Color(image.getRGB(x, y));
+                Color c = new Color(image.getRGB(x, y), true);
                 regions[getID(p)] = new Region(p, c);
 
             }
@@ -164,7 +164,7 @@ public class ImageRegions extends DisjointSets {
      */
     public BufferedImage getCompressed() {
 
-        BufferedImage compressed = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+        BufferedImage compressed = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
         for (int i = 0; i < s.length; i++) {
             if (s[i] < 0) {

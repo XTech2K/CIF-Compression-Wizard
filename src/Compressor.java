@@ -87,8 +87,9 @@ public class Compressor {
         int r = (c1.getRed()-c2.getRed());
         int g = (c1.getGreen()-c2.getGreen());
         int b = (c1.getBlue()-c2.getBlue());
+        int a = (c1.getAlpha()-c2.getAlpha());
 
-        return r*r+g*g+b*b;
+        return r*r+g*g+b*b+a*a;
     }
 
     //this class represents the similarity between the colors of two adjacent regions

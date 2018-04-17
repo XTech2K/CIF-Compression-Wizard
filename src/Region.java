@@ -7,6 +7,7 @@ public class Region implements Iterable<Pixel> {
     private long redVal;
     private long greenVal;
     private long blueVal;
+    private long alphaVal;
     private int size;
 
 
@@ -16,6 +17,7 @@ public class Region implements Iterable<Pixel> {
         this.redVal = c.getRed();
         this.greenVal = c.getGreen();
         this.blueVal = c.getBlue();
+        this.alphaVal = c.getAlpha();
         this.size = 1;
     }
 
@@ -27,13 +29,14 @@ public class Region implements Iterable<Pixel> {
      * @param size number of colors supplied
      * @return the resultant color after averaging each color with its size.
      */
-    private static Color colorFromVals(long redVal, long greenVal, long blueVal, int size) {
+    private static Color colorFromVals(long redVal, long greenVal, long blueVal, long alphaVal, int size) {
 
         int r = (int) (redVal / size);
         int g = (int) (greenVal / size);
         int b = (int) (blueVal / size);
+        int a = (int) (alphaVal / size);
 
-        return new Color(r, g, b);
+        return new Color(r, g, b, a);
 
     }
  
@@ -48,9 +51,10 @@ public class Region implements Iterable<Pixel> {
         long redVal = r1.redVal + r2.redVal;
         long greenVal = r1.greenVal + r2.greenVal;
         long blueVal = r1.blueVal + r2.blueVal;
+        long alphaVal = r1.alphaVal + r2.alphaVal;
         int size = r1.size + r2.size;
 
-        return colorFromVals(redVal, greenVal, blueVal, size);
+        return colorFromVals(redVal, greenVal, blueVal, alphaVal, size);
 
     }
 
@@ -65,22 +69,10 @@ public class Region implements Iterable<Pixel> {
         this.redVal += other.redVal;
         this.greenVal += other.greenVal;
         this.blueVal += other.blueVal;
+        this.alphaVal += other.alphaVal;
 
         this.size += other.size;
 
-    }
- 
-    /**
-     * calculates the color difference between two regions
-     * @param other the region to be compared to
-     * @return the resultant sum of absolute differences between the reg, green, and blue colors of each region
-     */
-    public long getDistance(Region other) {
-        long r = this.redVal - other.redVal;
-        long g = this.greenVal - other.greenVal;
-        long b = this.blueVal - other.blueVal;
-
-        return Math.abs(r) + Math.abs(g) + Math.abs(b);
     }
 
     /**
@@ -96,7 +88,7 @@ public class Region implements Iterable<Pixel> {
      * @return the color of this region
      */
     public Color getColor() {
-        return colorFromVals(redVal, greenVal, blueVal, size);
+        return colorFromVals(redVal, greenVal, blueVal, alphaVal, size);
     }
  
     /**
