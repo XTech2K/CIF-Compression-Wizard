@@ -1,16 +1,20 @@
 import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
 
 public class Controller {
     private ImageRegions ir;
     private Compressor compressor;
+    private LinkedList<BufferedImage> animation;
 
     public Controller() {
         this.ir = null;
         this.compressor = null;
+        this.animation = null;
     }
 
     /**
@@ -27,22 +31,25 @@ public class Controller {
         }
     }
 
-    /**
-     * Returns the base image that the controller is working with.
-     */
-    public Image getBaseImage() {
-        return ir.getImage();
+    public boolean compressImage(int percent, boolean animate) {
+        if (ir == null) return false;
+
+        int K = ir.maxSize() * (100 - percent) / 100;
+
+        if (animate) {
+            return compressWithAnimation(K);
+        } else {
+            return compress(K);
+        }
     }
 
     /**
      * Calls the Compressor on the base image, given the options from the Menu.
      * Need to think about what failure conditions might be.
      */
-    public boolean compressImage(int K, boolean animate) {
-        if (ir == null) {
-            throw new RuntimeException("ImageRegions never initialized");
-        }
-        //int K = ir.maxSize() * percent / 100;
+    // TODO: make private when testing done
+    public boolean compress(int K) {
+
         try {
             compressor.compress(K);
             return true;
@@ -51,27 +58,76 @@ public class Controller {
         }
     }
 
+    //TODO: make private when testing done
+    public boolean compressWithAnimation(int K) {
+        int currK = ir.maxSize();
+
+        animation = new LinkedList<>();
+
+        while (currK > K) {
+
+            if (!compress(currK)) return false;
+
+            animation.add(ir.getCompressed());
+            currK = (int) Math.ceil(currK * 0.9);
+
+        }
+
+        return compress(K);
+
+    }
+
     /**
      * Saves the compressed image as a PNG to the disk at the location specified by the user.
      */
     public boolean saveImageAsPNG(File f) {
+        if (ir == null) return false;
+
         BufferedImage image = ir.getCompressed();
+
         try {
             ImageIO.write(image, "png", f);
             return true;
+
         } catch (IOException E) {
             return false;
         }
+
+    }
+
+    public boolean saveAnimationAsGIF(File f) {
+        if (animation == null) return false;
+
+        try {
+            FileImageOutputStream out = new FileImageOutputStream(f);
+            GifSequenceWriter g = new GifSequenceWriter(out, ir.getImage().getType(), 250, true);
+            for (BufferedImage frame : animation) {
+                g.writeToSequence(frame);
+            }
+            g.close();
+        } catch (IOException E) {
+            return false;
+        }
+        return true;
     }
 
     /**
-     * Saves the compressed image as a CIF to the disk at the location specified by the user.
+     * TODO: remove this function without ruining compilation
      */
     public boolean saveImageAsCIF(File f) {
         return false;
     }
- 
-}
+
+    /**
+     * Returns the base image that the controller is working with.
+     */
+    public BufferedImage getBaseImage() {
+        return ir != null ? ir.getImage() : null;
+    }
+
+    public BufferedImage getCompressedImage() {
+        return ir != null ? ir.getCompressed() : null;
+    }
 /*
 import java.awt.*;
 import java.io.File;
@@ -162,5 +218,5 @@ public class Controller
             {  }
             return false;
 	}
-}
 */
+}

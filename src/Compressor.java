@@ -4,9 +4,24 @@ import java.util.PriorityQueue;
 public class Compressor {
 
     private ImageRegions ir;
+    private PriorityQueue<Similarity> pQueue;
 
     public Compressor(ImageRegions ir) {
         this.ir = ir;
+        reset();
+    }
+
+    private void reset() {
+
+        //TODO: add code to reset ImageRegions here
+        ir.reset();
+
+        // Create PriorityQueue and add all adjacent pixels' similaritites to it
+        pQueue = new PriorityQueue<>();
+        for (int i = 0; i < ir.getSize(); i++)
+            for (int j : ir.getAdjacent(i))
+                pQueue.add(new Similarity(ir.get(i), ir.get(j)));
+
     }
  
     /**
@@ -21,14 +36,8 @@ public class Compressor {
         }
         //resets the image and recompresses if the supplied K value is greater than the current K but less than the maximum acceptable value.
         if (K > ir.getSize()) {
-            ir = ir.reset();
+            reset();
         }
-
-        // Create PriorityQueue and add all adjacent pixels' similaritites to it
-        PriorityQueue<Similarity> pQueue = new PriorityQueue<>();
-        for (int i = 0; i < ir.getSize(); i++)
-            for (int j : ir.getAdjacent(i))
-                pQueue.add(new Similarity(ir.get(i), ir.get(j)));
 
         // Loop until we have the number of regions left that we want
         while (ir.getSize() > K) {
