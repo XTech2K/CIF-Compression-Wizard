@@ -112,13 +112,6 @@ public class Controller {
     }
 
     /**
-     * TODO: remove this function without ruining compilation
-     */
-    public boolean saveImageAsCIF(File f) {
-        return false;
-    }
-
-    /**
      * Returns the base image that the controller is working with.
      */
     public BufferedImage getBaseImage() {

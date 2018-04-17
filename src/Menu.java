@@ -82,57 +82,51 @@ public class Menu extends JFrame
 				filename = f.getName();
 				image = controller.getBaseImage();
 
-				//keep a version of the image that is scaled to its containing JPanel
-				//scale by the larger of the two dimensions
-				if(image.getWidth(null) > image.getHeight(null))
-				{
-					scaledImage = image.getScaledInstance(pImage.getWidth(), -1, Image.SCALE_SMOOTH);
-				}
-				else
-				{
-					scaledImage = image.getScaledInstance(-1, pImage.getHeight(), Image.SCALE_SMOOTH);
-				}
-
-				int pwid = pImage.getWidth();
-				int iwid = scaledImage.getWidth(this);
-				int phi = pImage.getHeight();
-				int ihi = scaledImage.getHeight(this);
-				drawx = pwid > iwid ? (pwid - iwid) / 2 : 0;    //start drawing at either the midpoint of the difference
-				drawy = phi > ihi ? (phi - ihi) / 2 : 0;        //between size of the image and size of the panel
-				//or start at 0 if panel is not larger than image
+				scaleImage();
 
 				//TODO: Debugging - remove.
-				System.out.println("image width, height = " + image.getWidth(null) + "," + image.getHeight(null));
-				System.out.println("scaled image width, height = " + scaledImage.getWidth(null) + "," + scaledImage.getHeight(null));
+				//System.out.println("image width, height = " + image.getWidth(null) + "," + image.getHeight(null));
+				//System.out.println("scaled image width, height = " + scaledImage.getWidth(null) + "," + scaledImage.getHeight(null));
 
-				//need to force a repaint of the window, otherwise would wait until window is dirty
+				//need to force a repaint of the window, otherwise it would wait until window is dirty (which takes too long)
 				revalidate();
 				repaint();
 			}
 		});
 
 		bCompress.addActionListener(e -> {
-			//TODO: Relies on Controller.compressImage
 			if(!controller.compressImage(compressionPercent, animate))
 			{
 				//compression failed?
 				JOptionPane.showMessageDialog(null, "Failed to compress image.");
+				return;
 			}
+
+			//store the new compressed image
+			image = controller.getCompressedImage();
+
+			//update scaledImage so that subsequent repaints show the new, compressed image
+			scaleImage();
+
+			//need to force a repaint of the window, otherwise it would wait until window is dirty (which takes too long)
+			revalidate();
+			repaint();
 		});
 
 		bSavePNG.addActionListener(e -> {
 			//if we don't have an image loaded, don't allow a save!
 			if(image == null) return;
+
 			String userHomeDir = System.getProperty("user.home");
 			JFileChooser jfc = new JFileChooser(userHomeDir + "/Pictures");
 			jfc.setFileFilter(new FileNameExtensionFilter("PNG", "png"));
 
-			//turn the old filename into a new "compressed" filename
+			//create a default filename for the new image based on the current filename
 			String file = filename.substring(0, filename.lastIndexOf(".")) + "-compressed.png";
 			jfc.setSelectedFile(new File(file));
+
 			if(jfc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
 			{
-				//TODO: Relies on Controller.saveImageAsPNG
 				File f = jfc.getSelectedFile();
 				if(!controller.saveImageAsPNG(f))
 				{
@@ -159,31 +153,9 @@ public class Menu extends JFrame
 					return;
 				}
 
-				//been long enough, reset lastResizeTime and continue with function
+				//been long enough, reset lastResizeTime and scale the image
 				lastResizeTime = curtime;
-
-				if(image != null)
-				{
-					if(image.getWidth(null) > image.getHeight(null))
-					{
-						scaledImage = image.getScaledInstance(pImage.getWidth(), -1, Image.SCALE_SMOOTH);
-					}
-					else
-					{
-						scaledImage = image.getScaledInstance(-1, pImage.getHeight(), Image.SCALE_SMOOTH);
-					}
-
-					int pwid = pImage.getWidth();
-					int iwid = scaledImage.getWidth(null);
-					int phi = pImage.getHeight();
-					int ihi = scaledImage.getHeight(null);
-					drawx = pwid > iwid ? (pwid - iwid) / 2 : 0;    //start drawing at either the midpoint of the difference
-					drawy = phi > ihi ? (phi - ihi) / 2 : 0;        //between size of the image and size of the panel
-					//or start at 0 if panel is not larger than image
-
-					//TODO: Debugging - remove
-					System.out.println("scaled image width, height = " + scaledImage.getWidth(null) + "," + scaledImage.getHeight(null));
-				}
+				scaleImage();
 			}
 		});
 	}
@@ -200,5 +172,31 @@ public class Menu extends JFrame
 				g.drawImage(scaledImage, drawx, drawy, this);
 			}
 		};
+	}
+
+	private void scaleImage()
+	{
+		if(image == null) return;
+
+		if(image.getWidth(null) > image.getHeight(null))
+		{
+			scaledImage = image.getScaledInstance(pImage.getWidth(), -1, Image.SCALE_SMOOTH);
+		}
+		else
+		{
+			scaledImage = image.getScaledInstance(-1, pImage.getHeight(), Image.SCALE_SMOOTH);
+		}
+
+		int pwid = pImage.getWidth();
+		int iwid = scaledImage.getWidth(null);
+		int phi = pImage.getHeight();
+		int ihi = scaledImage.getHeight(null);
+
+		/*
+		 * Start drawing at either the midpoint of the difference between the image and the panel,
+		 * or at 0,0 if the panel is not larger than the image
+		 */
+		drawx = pwid > iwid ? (pwid - iwid) / 2 : 0;
+		drawy = phi > ihi ? (phi - ihi) / 2 : 0;
 	}
 }
