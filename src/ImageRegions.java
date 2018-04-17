@@ -18,6 +18,19 @@ public class ImageRegions extends DisjointSets {
         this.image = image;
         this.regions = new Region[s.length];
 
+        this.reset();
+
+    }
+
+    public ImageRegions(File file) throws IOException {
+        this(ImageIO.read(file));
+    }
+
+    /**
+     * resets this ImageRegions to its original starting size
+     */
+    public void reset() {
+
         for (int y = 0; y < image.getHeight(); y++) {
 
             for (int x = 0; x < image.getWidth(); x++) {
@@ -30,10 +43,6 @@ public class ImageRegions extends DisjointSets {
 
         }
 
-    }
-
-    public ImageRegions(File file) throws IOException {
-        this(ImageIO.read(file));
     }
  
     /**
@@ -145,7 +154,7 @@ public class ImageRegions extends DisjointSets {
         return this.size;
     }
 
-    public Image getImage() {
+    public BufferedImage getImage() {
         return this.image;
     }
 
@@ -169,13 +178,6 @@ public class ImageRegions extends DisjointSets {
 
         return compressed;
 
-    }
-    /**
-     * restarts the compression from the original starting size
-     * @return a new ImageRegions
-     */
-    public ImageRegions reset() {
-        return new ImageRegions(this.image);
     }
 
 }

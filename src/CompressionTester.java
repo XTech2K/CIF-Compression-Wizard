@@ -7,13 +7,16 @@ public class CompressionTester {
 
         File inFile = new File(args[0]);
         File outFile = new File(args[1]);
+        File out2 = new File(args[3]);
 
         Controller c = new Controller();
         System.out.println(c.setImageFile(inFile));
 
-        System.out.println(c.compressImage(Integer.parseInt(args[2]), false));
+        System.out.println(c.compressWithAnimation(Integer.parseInt(args[2])));
 
         System.out.println(c.saveImageAsPNG(outFile));
+
+        System.out.println(c.saveAnimationAsGIF(out2));
 
     }
     
