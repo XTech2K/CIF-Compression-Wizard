@@ -13,6 +13,7 @@
 #IntelliJ IDEA files
 .idea/
 *.iml
+*.mf
 
 # Package Files #
 *.jar
