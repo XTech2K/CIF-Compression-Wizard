@@ -1,6 +1,5 @@
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +33,7 @@ public class Controller {
     public boolean compressImage(int percent, boolean animate) {
         if (ir == null) return false;
 
-        int K = ir.maxSize() * (100 - percent) / 100;
+        int K = ir.getMaxSize() * (100 - percent) / 100;
 
         if (animate) {
             return compressWithAnimation(K);
@@ -60,16 +59,16 @@ public class Controller {
 
     //TODO: make private when testing done
     public boolean compressWithAnimation(int K) {
-        int currK = ir.maxSize();
+        double currK = ir.getMaxSize();
 
         animation = new LinkedList<>();
 
         while (currK > K) {
 
-            if (!compress(currK)) return false;
+            if (!compress((int) Math.ceil(currK))) return false;
 
             animation.add(ir.getCompressed());
-            currK = (int) Math.ceil(currK * 0.9);
+            currK *= 0.9;
 
         }
 

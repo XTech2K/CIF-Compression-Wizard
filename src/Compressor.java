@@ -1,5 +1,5 @@
 import java.awt.*;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class Compressor {
 
@@ -8,20 +8,22 @@ public class Compressor {
 
     public Compressor(ImageRegions ir) {
         this.ir = ir;
-        reset();
+        setupQueue();
     }
 
     private void reset() {
-
-        //TODO: add code to reset ImageRegions here
         ir.reset();
+        setupQueue();
+    }
 
+    private void setupQueue() {
         // Create PriorityQueue and add all adjacent pixels' similaritites to it
         pQueue = new PriorityQueue<>();
-        for (int i = 0; i < ir.getSize(); i++)
-            for (int j : ir.getAdjacent(i))
+        for (int i = 0; i < ir.getSize(); i++) {
+            for (int j : ir.getAdjacent(i, true)) {
                 pQueue.add(new Similarity(ir.get(i), ir.get(j)));
-
+            }
+        }
     }
  
     /**
@@ -31,7 +33,7 @@ public class Compressor {
      */
     public void compress(int K) {
         //checks for valid input size
-        if (K < 1 || K > ir.maxSize()) {
+        if (K < 1 || K > ir.getMaxSize()) {
             throw new IllegalArgumentException("oof");
         }
         //resets the image and recompresses if the supplied K value is greater than the current K but less than the maximum acceptable value.
@@ -66,7 +68,7 @@ public class Compressor {
 
                 // Add neighboring sets back into PQ only if distance is greater than 0 and doing so is necessary
                 if (toUnion.distance > 0) {
-                    for (int n : ir.getAdjacent(R)) {
+                    for (int n : ir.getAdjacent(R, false)) {
                         pQueue.add(new Similarity(ir.get(R), ir.get(n)));
                     }
                 }

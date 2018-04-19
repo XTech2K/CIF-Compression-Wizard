@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -19,6 +20,26 @@ public class Region implements Iterable<Pixel> {
         this.blueVal = c.getBlue();
         this.alphaVal = c.getAlpha();
         this.size = 1;
+    }
+
+    Region(Region other) {
+        this.pixels = new LinkedList<>();
+        for (Pixel p : other.pixels) {
+            this.pixels.add(p);
+        }
+        this.redVal = other.redVal;
+        this.greenVal = other.greenVal;
+        this.blueVal = other.blueVal;
+        this.alphaVal = other.alphaVal;
+        this.size = other.size;
+    }
+
+    public static Region[] copy(Region[] old) {
+        Region[] res = new Region[old.length];
+        for (int i = 0; i < old.length; i++) {
+            res[i] = new Region(old[i]);
+        }
+        return res;
     }
 
     /**
