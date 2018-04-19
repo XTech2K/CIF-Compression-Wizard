@@ -1,15 +1,24 @@
+import javafx.util.Pair;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.TreeSet;
 
 public class ImageRegions extends DisjointSets {
 
-    private BufferedImage image;
+    static final int[][] FORWARD_ADJACENT = {{1,0},{1,1},{0,1},{-1,1}};
+    static final int[][] ALL_ADJACENT = {{1,0},{1,1},{0,1},{-1,1},{1,-1},{0,-1},{-1,-1},{-1,0}};
+
+    private final BufferedImage image;
     private Region[] regions;
+    private int maxRegions;
+    private int[] sArch;
+    private Region[] regionsArch;
 
 
     public ImageRegions(BufferedImage image) {
@@ -17,19 +26,6 @@ public class ImageRegions extends DisjointSets {
         super(image.getHeight() * image.getWidth());
         this.image = image;
         this.regions = new Region[s.length];
-
-        this.reset();
-
-    }
-
-    public ImageRegions(File file) throws IOException {
-        this(ImageIO.read(file));
-    }
-
-    /**
-     * resets this ImageRegions to its original starting size
-     */
-    public void reset() {
 
         for (int y = 0; y < image.getHeight(); y++) {
 
@@ -42,6 +38,46 @@ public class ImageRegions extends DisjointSets {
             }
 
         }
+
+        ArrayList<Pair<Integer, Integer>> toUnion = new ArrayList<>();
+
+        for (int i = 0; i < size; i++) {
+            for (int j : getAdjacent(i, false)) {
+                Region r1 = get(i);
+                Region r2 = get(j);
+
+                if (r1.getColor().equals(r2.getColor())) {
+                    toUnion.add(new Pair<>(i, j));
+                }
+            }
+        }
+
+        for (Pair<Integer, Integer> pair : toUnion) {
+            int a = find(pair.getKey());
+            int b = find(pair.getValue());
+            if (a != b) {
+                union(a, b);
+            }
+        }
+
+        maxRegions = size;
+        sArch = Arrays.copyOf(s, s.length);
+        regionsArch = Region.copy(regions);
+
+    }
+
+    public ImageRegions(File file) throws IOException {
+        this(ImageIO.read(file));
+    }
+
+    /**
+     * resets this ImageRegions to its original starting size
+     */
+    public void reset() {
+
+        size = maxRegions;
+        s = Arrays.copyOf(sArch, s.length);
+        regions = Region.copy(regionsArch);
 
     }
  
@@ -78,23 +114,25 @@ public class ImageRegions extends DisjointSets {
      * @return the region that the root makes up
      */
     public Region get(int root) {
+        root = find(root);
         assertIsRoot(root);
         return regions[root];
     }
- 
+
     /**
      * returns the regions adjacent to the provided root of a region
      * @param root an index to look from
      * @return a treeset of neighboring sets listed by their root
      */
-    public TreeSet<Integer> getAdjacent(int root) {
-        //8-neighbors of a given pixel
+    public TreeSet<Integer> getAdjacent(int root, boolean onlyForward) {
 
         TreeSet<Integer> result = new TreeSet<>();
 
+        int[][] offsets = onlyForward ? FORWARD_ADJACENT : ALL_ADJACENT;
+
         for (Pixel p : get(root)) {
 
-            for (Pixel neighbor : getNeighbors(p)) {
+            for (Pixel neighbor : getNearbyPixels(p, offsets)) {
 
                 int neighborRoot = find(getID(neighbor));
                 if (neighborRoot != -1 && neighborRoot != root) // Do not add the original root into the neighbor set
@@ -107,43 +145,41 @@ public class ImageRegions extends DisjointSets {
         return result;
   
     }
- 
+
     /**
-     * calculates the eight neighbors of a given pixel
+     * calculates nearby neighbors of a given pixel
      * @param pixel the pixel to find neighbors of
-     * @return an arraylist of pixels that hold its neighboring pixels
+     * @param offsets a list of pairs of x and y offsets for the desired pixels
+     * @return an ArrayList of pixels that hold its neighboring pixels
      */
-    private ArrayList<Pixel> getNeighbors(Pixel pixel) {
-        ArrayList<Pixel> neighbors = new ArrayList<Pixel>();
+    private ArrayList<Pixel> getNearbyPixels(Pixel pixel, int[][] offsets) {
+        ArrayList<Pixel> nearby = new ArrayList<Pixel>();
 
-        for (int i = -1; i <= 1; i++) {
+        for (int[] offset : offsets) {
 
-            int x = pixel.x + i;
-
+            int x = pixel.x + offset[0];
             if (x < 0 || x == image.getWidth()) continue;
 
-            for (int j = -1; j <= 1; j++) {
+            int y = pixel.y + offset[1];
+            if (y < 0 || y == image.getHeight()) continue;
 
-                int y = pixel.y + j;
+            nearby.add(new Pixel(x, y));
 
-                if (y < 0 || y == image.getHeight()) continue;
-                if (i == 0 && j == 0) continue;
+        }
 
-                neighbors.add(new Pixel(x, y));
-
-            }//end for j
-
-        }//end for i
-
-        return neighbors;
-
+        return nearby;
     }
+
+    public void setBaseRegions() {
+        this.maxRegions = size;
+    }
+
     /**
      * fetches the size of the array s
      * @return the size of the array s
      */
-    public int maxSize() {
-        return s.length;
+    public int getMaxSize() {
+        return maxRegions;
     }
  
     /**
