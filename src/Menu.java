@@ -1,12 +1,9 @@
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 
 public class Menu extends JFrame
 {
@@ -16,15 +13,14 @@ public class Menu extends JFrame
 	private JPanel pOptions;
 	private JPanel pButtons;
 	private JPanel pSlider;
-	private JPanel pCheckbox;
-	private JCheckBox cAnimate;
 	private JSlider sPercent;
 	private JButton bLoad;
 	private JButton bCompress;
 	private JButton bSavePNG;
 	private JLabel aCompressAmount;
 	private JTextField tPercent;
-	private JPanel pSpacer;
+	private JButton bAnimate;
+	private JTextField tfStatus;
 
 	public static final int DEFAULT_WIDTH = 800;
 	public static final int DEFAULT_HEIGHT = 800;
@@ -37,7 +33,6 @@ public class Menu extends JFrame
 	private Image scaledImage;
 	private String filename;
 	private int compressionPercent;
-	private boolean animate;
 
 	/* --- Reference to a Controller for the Menu to interact with the Compression program. --- */
 	private Controller controller;
@@ -45,7 +40,6 @@ public class Menu extends JFrame
 	public Menu()
 	{
 		controller = new Controller();
-		animate = false;
 
 		setContentPane(pWindow);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -70,6 +64,9 @@ public class Menu extends JFrame
 			jfc.setFileFilter(new FileNameExtensionFilter("PNG or JPEG", "png", "jpg", "jpeg"));
 			if(jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
 			{
+				//TODO: doesn't show due to load hogging the Swing thread
+				//tfStatus.setText("Loading image, please wait...");
+
 				File f = jfc.getSelectedFile();
 
 				if(!controller.setImageFile(f))
@@ -80,9 +77,12 @@ public class Menu extends JFrame
 				}
 
 				filename = f.getName();
+
 				image = controller.getBaseImage();
 
 				scaleImage();
+
+				tfStatus.setText("Finished loading file: " + filename);
 
 				//TODO: Debugging - remove.
 				//System.out.println("image width, height = " + image.getWidth(null) + "," + image.getHeight(null));
@@ -95,7 +95,10 @@ public class Menu extends JFrame
 		});
 
 		bCompress.addActionListener(e -> {
-			if(!controller.compressImage(compressionPercent, animate))
+			//TODO: doesn't show due to compression hogging the Swing thread
+			//tfStatus.setText("Compressing image, please wait...");
+
+			if(!controller.compressImage(compressionPercent, false))
 			{
 				//compression failed?
 				JOptionPane.showMessageDialog(null, "Failed to compress image.");
@@ -107,6 +110,8 @@ public class Menu extends JFrame
 
 			//update scaledImage so that subsequent repaints show the new, compressed image
 			scaleImage();
+
+			tfStatus.setText("Compression finished - now at " + compressionPercent + "% compression.");
 
 			//need to force a repaint of the window, otherwise it would wait until window is dirty (which takes too long)
 			revalidate();
@@ -132,11 +137,62 @@ public class Menu extends JFrame
 				{
 					//image could not be saved?
 					JOptionPane.showMessageDialog(null, "Failed to save image.");
+					return;
 				}
+
+				tfStatus.setText("Finished saving image to file: " + f.getName());
 			}
 		});
 
-		cAnimate.addActionListener(e -> animate = !animate);
+		bAnimate.addActionListener(e -> {
+			//if we don't have an image loaded, don't allow animation!
+			if(image == null) return;
+
+			String userHomeDir = System.getProperty("user.home");
+			JFileChooser jfc = new JFileChooser(userHomeDir + "/Pictures");
+			jfc.setFileFilter(new FileNameExtensionFilter("gif", "gif"));
+
+			//create a default filename for the new image based on the current filename
+			String file = filename.substring(0, filename.lastIndexOf(".")) + "-compression.gif";
+			jfc.setSelectedFile(new File(file));
+
+			if(jfc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+			{
+				File f = jfc.getSelectedFile();
+
+				//TODO: doesn't show due to compression hogging the Swing thread
+				//tfStatus.setText("Compressing image, please wait...");
+
+				if(!controller.compressImage(compressionPercent, true))
+				{
+					//compression failed?
+					JOptionPane.showMessageDialog(null, "Failed to compress image.");
+					tfStatus.setText("Compression failed.");
+					return;
+				}
+
+				//TODO: doesn't show due to animation hogging the Swing thread
+				//tfStatus.setText("Creating animation, please wait...");
+
+				if(!controller.saveAnimationAsGIF(f))
+				{
+					//animation failed
+					JOptionPane.showMessageDialog(null, "Failed to save animation.");
+					tfStatus.setText("Could not save animation.");
+					return;
+				}
+
+				image = controller.getCompressedImage();
+
+				scaleImage();
+
+				tfStatus.setText("Finished saving animation to file: " + f.getName());
+
+				//need to force a repaint of the window, otherwise it would wait until window is dirty (which takes too long)
+				revalidate();
+				repaint();
+			}
+		});
 
 		pImage.addComponentListener(new ComponentAdapter()
 		{
@@ -146,9 +202,9 @@ public class Menu extends JFrame
 				super.componentResized(e);
 
 				//this method is called continuously during a resize, which can cause severe slowdowns
-				//only perform these operations every tenth of a second, rather than several dozens of times per second
+				//only perform these operations at most 20 times a second, rather than 50+ times
 				long curtime = System.currentTimeMillis();
-				if(curtime - lastResizeTime < 100)
+				if(curtime - lastResizeTime < 50)
 				{
 					return;
 				}
