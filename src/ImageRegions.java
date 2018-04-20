@@ -11,8 +11,8 @@ import java.util.TreeSet;
 
 public class ImageRegions extends DisjointSets {
 
-    static final int[][] FORWARD_ADJACENT = {{1,0},{1,1},{0,1},{-1,1}};
-    static final int[][] ALL_ADJACENT = {{1,0},{1,1},{0,1},{-1,1},{1,-1},{0,-1},{-1,-1},{-1,0}};
+    private static final int[][] FORWARD_ADJACENT = {{1,0},{1,1},{0,1},{-1,1}};
+    private static final int[][] ALL_ADJACENT = {{1,0},{1,1},{0,1},{-1,1},{1,-1},{0,-1},{-1,-1},{-1,0}};
 
     private final BufferedImage image;
     private Region[] regions;
@@ -170,8 +170,8 @@ public class ImageRegions extends DisjointSets {
         return nearby;
     }
 
-    public void setBaseRegions() {
-        this.maxRegions = size;
+    public boolean isRoot(int r) {
+        return s[r] < 0;
     }
 
     /**

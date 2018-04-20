@@ -47,6 +47,7 @@ public class Region implements Iterable<Pixel> {
      * @param redVal the running total of red supplied
      * @param greenVal the running total of green supplied
      * @param blueVal the running total of blue supplied
+     * @param alphaVal the running total of alpha supplied
      * @param size number of colors supplied
      * @return the resultant color after averaging each color with its size.
      */

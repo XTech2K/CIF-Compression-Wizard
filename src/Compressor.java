@@ -20,8 +20,10 @@ public class Compressor {
         // Create PriorityQueue and add all adjacent pixels' similaritites to it
         pQueue = new PriorityQueue<>();
         for (int i = 0; i < ir.getSize(); i++) {
-            for (int j : ir.getAdjacent(i, true)) {
-                pQueue.add(new Similarity(ir.get(i), ir.get(j)));
+            if (ir.isRoot(i)) {
+                for (int j : ir.getAdjacent(i, true)) {
+                    pQueue.add(new Similarity(ir.get(i), ir.get(j)));
+                }
             }
         }
     }
