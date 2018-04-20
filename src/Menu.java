@@ -64,8 +64,8 @@ public class Menu extends JFrame
 			jfc.setFileFilter(new FileNameExtensionFilter("PNG or JPEG", "png", "jpg", "jpeg"));
 			if(jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
 			{
-				//TODO: doesn't show due to load hogging the Swing thread
-				//tfStatus.setText("Loading image, please wait...");
+				tfStatus.setText("Loading image, please wait...");
+				tfStatus.paintImmediately(tfStatus.getBounds());
 
 				File f = jfc.getSelectedFile();
 
@@ -84,10 +84,6 @@ public class Menu extends JFrame
 
 				tfStatus.setText("Finished loading file: " + filename);
 
-				//TODO: Debugging - remove.
-				//System.out.println("image width, height = " + image.getWidth(null) + "," + image.getHeight(null));
-				//System.out.println("scaled image width, height = " + scaledImage.getWidth(null) + "," + scaledImage.getHeight(null));
-
 				//need to force a repaint of the window, otherwise it would wait until window is dirty (which takes too long)
 				revalidate();
 				repaint();
@@ -95,8 +91,8 @@ public class Menu extends JFrame
 		});
 
 		bCompress.addActionListener(e -> {
-			//TODO: doesn't show due to compression hogging the Swing thread
-			//tfStatus.setText("Compressing image, please wait...");
+			tfStatus.setText("Compressing image, please wait...");
+			tfStatus.paintImmediately(tfStatus.getBounds());
 
 			if(!controller.compressImage(compressionPercent, false))
 			{
@@ -160,8 +156,8 @@ public class Menu extends JFrame
 			{
 				File f = jfc.getSelectedFile();
 
-				//TODO: doesn't show due to compression hogging the Swing thread
-				//tfStatus.setText("Compressing image, please wait...");
+				tfStatus.setText("Compressing image, please wait...");
+				tfStatus.paintImmediately(tfStatus.getBounds());
 
 				if(!controller.compressImage(compressionPercent, true))
 				{
@@ -171,8 +167,8 @@ public class Menu extends JFrame
 					return;
 				}
 
-				//TODO: doesn't show due to animation hogging the Swing thread
-				//tfStatus.setText("Creating animation, please wait...");
+				tfStatus.setText("Creating animation, please wait...");
+				tfStatus.paintImmediately(tfStatus.getBounds());
 
 				if(!controller.saveAnimationAsGIF(f))
 				{
