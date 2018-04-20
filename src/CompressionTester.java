@@ -12,7 +12,7 @@ public class CompressionTester {
         Controller c = new Controller();
         System.out.println(c.setImageFile(inFile));
 
-        System.out.println(c.compress(Integer.parseInt(args[2])));
+        System.out.println(c.compressImage(Integer.parseInt(args[2]), false));
 
         System.out.println(c.saveImageAsPNG(outFile));
 

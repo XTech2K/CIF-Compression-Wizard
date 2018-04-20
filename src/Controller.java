@@ -34,6 +34,9 @@ public class Controller {
         if (ir == null) return false;
 
         int K = ir.getMaxSize() * (100 - percent) / 100;
+        if (K == 0) {
+            K = 1;
+        }
 
         if (animate) {
             return compressWithAnimation(K);
@@ -60,6 +63,7 @@ public class Controller {
     //TODO: make private when testing done
     public boolean compressWithAnimation(int K) {
         double currK = ir.getMaxSize();
+        double ratio = Math.pow(K / currK, 1.0/60);
 
         animation = new LinkedList<>();
 
@@ -68,7 +72,7 @@ public class Controller {
             if (!compress((int) Math.ceil(currK))) return false;
 
             animation.add(ir.getCompressed());
-            currK *= 0.9;
+            currK *= ratio;
 
         }
 
@@ -99,7 +103,7 @@ public class Controller {
 
         try {
             FileImageOutputStream out = new FileImageOutputStream(f);
-            GifSequenceWriter g = new GifSequenceWriter(out, ir.getImage().getType(), 250, true);
+            GifSequenceWriter g = new GifSequenceWriter(out, ir.getImage().getType(), 100, false);
             for (BufferedImage frame : animation) {
                 g.writeToSequence(frame);
             }
