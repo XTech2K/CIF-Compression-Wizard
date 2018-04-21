@@ -1,8 +1,7 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.*;
 import java.io.File;
 
 public class Menu extends JFrame
@@ -208,6 +207,78 @@ public class Menu extends JFrame
 				//been long enough, reset lastResizeTime and scale the image
 				lastResizeTime = curtime;
 				scaleImage();
+			}
+		});
+
+		/* --- Secret :) --- */
+		aCompressAmount.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				super.mouseClicked(e);
+				if(e.isAltDown())
+				{
+					//if we don't have an image loaded, don't allow animation!
+					if(image == null) return;
+
+					String s = JOptionPane.showInputDialog("You found a secret! Compress to how many regions?");
+					int r;
+					try
+					{
+						r = Integer.parseInt(s);
+					}
+					catch(NumberFormatException nfe)
+					{
+						JOptionPane.showMessageDialog(null, "Could not read your input as a number.");
+						return;
+					}
+
+					String userHomeDir = System.getProperty("user.home");
+					JFileChooser jfc = new JFileChooser(userHomeDir + "/Pictures");
+					jfc.setFileFilter(new FileNameExtensionFilter("gif", "gif"));
+
+					//create a default filename for the new image based on the current filename
+					String file = filename.substring(0, filename.lastIndexOf(".")) + "-compression.gif";
+					jfc.setSelectedFile(new File(file));
+
+					if(jfc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+					{
+						File f = jfc.getSelectedFile();
+
+						tfStatus.setText("Compressing image, please wait...");
+						tfStatus.paintImmediately(tfStatus.getBounds());
+
+						if(!controller.compressToRegions(r, true))
+						{
+							//compression failed?
+							JOptionPane.showMessageDialog(null, "Failed to compress image.");
+							tfStatus.setText("Compression failed.");
+							return;
+						}
+
+						tfStatus.setText("Creating animation, please wait...");
+						tfStatus.paintImmediately(tfStatus.getBounds());
+
+						if(!controller.saveAnimationAsGIF(f))
+						{
+							//animation failed
+							JOptionPane.showMessageDialog(null, "Failed to save animation.");
+							tfStatus.setText("Could not save animation.");
+							return;
+						}
+
+						image = controller.getCompressedImage();
+
+						scaleImage();
+
+						tfStatus.setText("Finished saving animation to file: " + f.getName());
+
+						//need to force a repaint of the window, otherwise it would wait until window is dirty (which takes too long)
+						revalidate();
+						repaint();
+					}
+				}
 			}
 		});
 	}
