@@ -45,6 +45,16 @@ public class Controller {
         }
     }
 
+    public boolean compressToRegions(int K, boolean animate) {
+    	if(ir == null) return false;
+    	if(K == 0) K = 1;
+
+    	if(animate)
+    		return compressWithAnimation(K);
+    	else
+    		return compress(K);
+	}
+
     /**
      * Calls the Compressor on the base image, given the options from the Menu.
      * Need to think about what failure conditions might be.
