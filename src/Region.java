@@ -44,11 +44,12 @@ public class Region implements Iterable<Pixel> {
 
     /**
      * creates a color from the supplied inputs
-     * @param redVal the running total of red supplied
+     *
+     * @param redVal   the running total of red supplied
      * @param greenVal the running total of green supplied
-     * @param blueVal the running total of blue supplied
+     * @param blueVal  the running total of blue supplied
      * @param alphaVal the running total of alpha supplied
-     * @param size number of colors supplied
+     * @param size     number of colors supplied
      * @return the resultant color after averaging each color with its size.
      */
     private static Color colorFromVals(long redVal, long greenVal, long blueVal, long alphaVal, int size) {
@@ -61,9 +62,10 @@ public class Region implements Iterable<Pixel> {
         return new Color(r, g, b, a);
 
     }
- 
+
     /**
      * creates an average color from the supplied regions
+     *
      * @param r1 the first region to be averaged
      * @param r2 the second region to be averaged with
      * @return the resultant color after averaging the color of each region
@@ -82,6 +84,7 @@ public class Region implements Iterable<Pixel> {
 
     /**
      * unions this region with a second region
+     *
      * @param other the region to be union with
      */
     public void union(Region other) {
@@ -99,30 +102,34 @@ public class Region implements Iterable<Pixel> {
 
     /**
      * fetches the size of this region
+     *
      * @return the size of this region
      */
     public int getSize() {
         return this.size;
     }
- 
+
     /**
      * calculates the color of this region
+     *
      * @return the color of this region
      */
     public Color getColor() {
         return colorFromVals(redVal, greenVal, blueVal, alphaVal, size);
     }
- 
+
     /**
      * fetches the root of this region
+     *
      * @return the root of this region
      */
     public Pixel getRoot() {
         return this.pixels.get(0);
     }
- 
+
     /**
      * creates an iterator of pixels
+     *
      * @return an iterator of pixels
      */
     public Iterator<Pixel> iterator() {

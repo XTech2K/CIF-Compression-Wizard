@@ -33,9 +33,10 @@ public class Compressor {
             }
         }
     }
- 
+
     /**
      * Reduces the number of colored regions to the requested number
+     *
      * @param K the number of regions to reduce down to
      * @throws IllegalArgumentException if K is less than one or greater than the number of maximum regions
      */
@@ -84,20 +85,21 @@ public class Compressor {
         }
 
     }
- 
+
     /**
      * Calculates a numerical weight for the difference between two colors
+     *
      * @param c1 the color of the first region
      * @param c2 the color of the second region
      * @return the sum of the squares of the differences between red, green, and blue components of each color.
      */
     private static int compareColors(Color c1, Color c2) {
-        int r = (c1.getRed()-c2.getRed());
-        int g = (c1.getGreen()-c2.getGreen());
-        int b = (c1.getBlue()-c2.getBlue());
-        int a = (c1.getAlpha()-c2.getAlpha());
+        int r = (c1.getRed() - c2.getRed());
+        int g = (c1.getGreen() - c2.getGreen());
+        int b = (c1.getBlue() - c2.getBlue());
+        int a = (c1.getAlpha() - c2.getAlpha());
 
-        return r*r+g*g+b*b+a*a;
+        return r * r + g * g + b * b + a * a;
     }
 
     //Rhis class represents the similarity between the colors of two adjacent regions
@@ -108,31 +110,32 @@ public class Compressor {
 
         // Distance between the color of two regions,
         int distance;
-  
+
         Similarity(Region r1, Region r2) {
             this.r1 = r1;
             this.r2 = r2;
-    
+
             Color avgColor = Region.avgColor(r1, r2);
             int d1 = compareColors(r1.getColor(), avgColor);
             int d2 = compareColors(r2.getColor(), avgColor);
-    
+
             this.distance = d1 * r1.getSize() + d2 * r2.getSize();
         }
 
         /**
          * Compares this region to second, provided region
+         *
          * @param other the provided region
          * @return an integer representing the distance between the two regions.
          */
         public int compareTo(Similarity other) {
-            int diff=this.distance - other.distance;
-            if(diff!=0) return diff;
-            diff=this.r1.getRoot().compareTo(other.r1.getRoot());
-            if(diff!=0) return diff;
+            int diff = this.distance - other.distance;
+            if (diff != 0) return diff;
+            diff = this.r1.getRoot().compareTo(other.r1.getRoot());
+            if (diff != 0) return diff;
             return this.r2.getRoot().compareTo(other.r2.getRoot());
         }
-  
+
     }
 
 }

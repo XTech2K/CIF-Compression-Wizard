@@ -2,7 +2,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class CompressionTester {
-    
+
     public static void main(String[] args) throws IOException {
 
         File inFile = new File(args[0]);
@@ -19,5 +19,5 @@ public class CompressionTester {
         System.out.println(c.saveAnimationAsGIF(out2));
 
     }
-    
+
 }
