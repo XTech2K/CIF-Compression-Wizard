@@ -1,5 +1,4 @@
 import javafx.util.Pair;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -71,7 +70,7 @@ public class ImageRegions extends DisjointSets {
     }
 
     /**
-     * resets this ImageRegions to its original starting size
+     * Resets this ImageRegions to its original number of regions
      */
     public void reset() {
 
@@ -82,7 +81,7 @@ public class ImageRegions extends DisjointSets {
     }
  
     /**
-     * grabs the ordinal number of the supplied pixel. Ex: pixel A is the 5th pixel.
+     * Grabs the ordinal number of the supplied pixel. Ex: pixel A is the 5th pixel.
      * @param p the pixel to get the order of
      * @return the ordinal number of the pixel
      */
@@ -115,13 +114,13 @@ public class ImageRegions extends DisjointSets {
      */
     public Region get(int root) {
         root = find(root);
-        assertIsRoot(root);
         return regions[root];
     }
 
     /**
-     * returns the regions adjacent to the provided root of a region
+     * Returns the regions adjacent to the provided root of a region
      * @param root an index to look from
+     * @param onlyForward True if we only want adjacent regions further ahead
      * @return a treeset of neighboring sets listed by their root
      */
     public TreeSet<Integer> getAdjacent(int root, boolean onlyForward) {
@@ -147,7 +146,7 @@ public class ImageRegions extends DisjointSets {
     }
 
     /**
-     * calculates nearby neighbors of a given pixel
+     * Calculates nearby neighbors of a given pixel
      * @param pixel the pixel to find neighbors of
      * @param offsets a list of pairs of x and y offsets for the desired pixels
      * @return an ArrayList of pixels that hold its neighboring pixels
@@ -170,12 +169,17 @@ public class ImageRegions extends DisjointSets {
         return nearby;
     }
 
+    /**
+     * Determines if a given root is actually a root
+     * @param r the root to check
+     * @return whether or not int r is a root
+     */
     public boolean isRoot(int r) {
         return s[r] < 0;
     }
 
     /**
-     * fetches the size of the array s
+     * Fetches the size of the array s
      * @return the size of the array s
      */
     public int getMaxSize() {
@@ -183,19 +187,23 @@ public class ImageRegions extends DisjointSets {
     }
  
     /**
-     * fetches size of this image region
+     * Fetches size of this image region
      * @return the size of this image region
      */
     public int getSize() {
         return this.size;
     }
 
+    /**
+     * Fetches the original uncompressed image
+     * @return the uncompressed image
+     */
     public BufferedImage getImage() {
         return this.image;
     }
 
     /**
-     * creates a buffered image and sets the value of each pixel in the image to the appropriate new value
+     * Creates a buffered image and sets the value of each pixel in the image to the appropriate new value
      * @return the compressed image
      */
     public BufferedImage getCompressed() {

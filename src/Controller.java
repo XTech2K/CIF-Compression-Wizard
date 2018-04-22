@@ -5,67 +5,62 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 
-public class Controller
-{
-	private ImageRegions ir;
-	private Compressor compressor;
-	private LinkedList<BufferedImage> animation;
+public class Controller {
+    private ImageRegions ir;
+    private Compressor compressor;
+    private LinkedList<BufferedImage> animation;
 
-	public Controller()
-	{
-		this.ir = null;
-		this.compressor = null;
-		this.animation = null;
-	}
+    public Controller() {
+        this.ir = null;
+        this.compressor = null;
+        this.animation = null;
+    }
 
-	/**
-	 * Takes a File from the Menu that the user selected, reads it in with ImageIO.read() into a BufferedImage,
-	 * and sets the Controller's baseImage to that image.
-	 */
-	public boolean setImageFile(File f)
-	{
-		try
-		{
-			ir = new ImageRegions(f);
-			compressor = new Compressor(ir);
-			return true;
-		}
-		catch(IOException E)
-		{
-			return false;
-		}
-	}
+    /**
+     * Takes a File from the Menu that the user selected, reads it in with ImageIO.read() into a BufferedImage,
+     * and sets the Controller's baseImage to that image.
+     */
+    public boolean setImageFile(File f) {
+        try {
+            ir = new ImageRegions(f);
+            compressor = new Compressor(ir);
+            return true;
+        } catch (IOException E) {
+            return false;
+        }
+    }
 
-	/**
-	 * Chooses a number of regions to compress to based on a percent of the current number of regions in the image.
-	 */
-	public boolean compressToPercent(int percent, boolean animate)
-	{
-		if(ir == null) return false;
+    /**
+     * Compress the image by a given percentage
+     * @param percent the percentage of colored regions to remove
+     * @param animate whether or not an animation should be generated
+     * @return success value of the compression
+     */
+    public boolean compressImage(int percent, boolean animate) {
+        if (ir == null) return false;
 
-		int K = ir.getMaxSize() * (100 - percent) / 100;
-		if(K == 0)
-		{
-			K = 1;
-		}
+        // Convert percent compression into a number of regions
+        int K = ir.getMaxSize() * (100 - percent) / 100;
+        if (K == 0) {
+            K = 1;
+        }
 
-		if(animate)
-		{
-			return compressWithAnimation(K);
-		}
-		else
-		{
-			return compress(K);
-		}
-	}
+        if (animate) {
+            return compressWithAnimation(K);
+        } else {
+            return compress(K);
+        }
+    }
 
-	/**
-	 * Compresses to the number of regions specified by the caller.
-	 */
-	public boolean compressToRegions(int K, boolean animate)
-	{
-		if(ir == null) return false;
-		if(K == 0) K = 1;
+    /**
+     * Compress the image to a given number of regions
+     * @param K the desired final number of regions
+     * @param animate whether or not an animation should be generated
+     * @return success value of the compression
+     */
+    public boolean compressToRegions(int K, boolean animate) {
+    	if(ir == null) return false;
+    	if(K == 0) K = 1;
 
 		if(animate)
 			return compressWithAnimation(K);
@@ -73,36 +68,37 @@ public class Controller
 			return compress(K);
 	}
 
-	/**
-	 * Calls the Compressor on the base image, given the options from the Menu.
-	 * Need to think about what failure conditions might be.
-	 */
-	private boolean compress(int K)
-	{
+    /**
+     * Compresses the image to K regions
+     * @param K number of regions to which to compress
+     * @return success value of the compression
+     */
 
-		try
-		{
-			compressor.compress(K);
-			return true;
-		}
-		catch(IllegalArgumentException E)
-		{
-			return false;
-		}
-	}
+    private boolean compress(int K) {
 
-	/**
-	 * Create a list of images with gradually increasing compressions that can be combined to show an animation.
-	 */
-	private boolean compressWithAnimation(int K)
-	{
-		double currK = ir.getMaxSize();
-		double ratio = Math.pow(K / currK, 1.0 / 60);
+        try {
+            compressor.compress(K);
+            return true;
+        } catch (IllegalArgumentException E) {
+            return false;
+        }
+    }
+
+    /**
+     * Compress the image to K regions while generating 60 images for use in animation
+     * @param K the desired final number of regions
+     * @return success value of the compression
+     */
+    private boolean compressWithAnimation(int K) {
+        double currK = ir.getMaxSize();
+
+        // Calculate ratio to result in 60 final images with a logarithmic progression
+        double ratio = Math.pow(K / currK, 1.0/60);
 
 		animation = new LinkedList<>();
 
-		while(currK > K)
-		{
+        // Call compress multiple times in order to get multiple images for animation
+        while (currK > K) {
 
 			if(!compress((int) Math.ceil(currK))) return false;
 
@@ -115,65 +111,61 @@ public class Controller
 
 	}
 
-	/**
-	 * Saves the compressed image as a PNG to the disk at the location specified by the user.
-	 */
-	public boolean saveImageAsPNG(File f)
-	{
-		if(ir == null) return false;
+    /**
+     * Saves the compressed image as a PNG to the disk at the location specified by the user.
+     * @param f File to save the image at
+     * @return success value of the operation
+     */
+    public boolean saveImageAsPNG(File f) {
+        if (ir == null) return false;
 
 		BufferedImage image = ir.getCompressed();
 
-		try
-		{
-			ImageIO.write(image, "png", f);
-			return true;
+        try {
+            ImageIO.write(image, "png", f);
+            return true;
 
-		}
-		catch(IOException E)
-		{
-			return false;
-		}
+        } catch (IOException E) {
+            return false;
+        }
 
 	}
 
-	/**
-	 * Saves an animated GIF of the last compression call with animation enabled.
-	 */
-	public boolean saveAnimationAsGIF(File f)
-	{
-		if(animation == null) return false;
+    /**
+     * Saves the animation generated by the compression to a GIF at the location specified by the user
+     * @param f File to save the animation at
+     * @return success value of the operation
+     */
+    public boolean saveAnimationAsGIF(File f) {
+        if (animation == null) return false;
 
-		try
-		{
-			FileImageOutputStream out = new FileImageOutputStream(f);
-			GifSequenceWriter g = new GifSequenceWriter(out, ir.getImage().getType(), 100, false);
-			for(BufferedImage frame : animation)
-			{
-				g.writeToSequence(frame);
-			}
-			g.close();
-		}
-		catch(IOException E)
-		{
-			return false;
-		}
-		return true;
-	}
+        try {
+            FileImageOutputStream out = new FileImageOutputStream(f);
+            GifSequenceWriter g = new GifSequenceWriter(out, ir.getImage().getType(), 100, false);
+            for (BufferedImage frame : animation) {
+                g.writeToSequence(frame);
+            }
+            g.close();
+        } catch (IOException E) {
+            return false;
+        }
+        return true;
+    }
 
-	/**
-	 * Returns the base image that the controller is working with.
-	 */
-	public BufferedImage getBaseImage()
-	{
-		return ir != null ? ir.getImage() : null;
-	}
+    /**
+     * Fetch the base image before compression
+     * @return the uncompressed image
+     */
+    public BufferedImage getBaseImage() {
+        return ir != null ? ir.getImage() : null;
+    }
 
-	/**
-	 * Returns the most recently compressed image.
-	 */
-	public BufferedImage getCompressedImage()
-	{
-		return ir != null ? ir.getCompressed() : null;
-	}
+    /**
+     * Fetch the final image after compression
+     * @return the compressed image
+     */
+    public BufferedImage getCompressedImage() {
+        return ir != null ? ir.getCompressed() : null;
+    }
+
 }
