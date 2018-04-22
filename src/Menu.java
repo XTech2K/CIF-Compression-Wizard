@@ -36,6 +36,10 @@ public class Menu extends JFrame
 	/* --- Reference to a Controller for the Menu to interact with the Compression program. --- */
 	private Controller controller;
 
+	/**
+	 * Does a full setup of the menu, including creating all relevant listeners, setting the current and minimum size
+	 * for the window, setting the default close operation, and setting the content pane.
+	 */
 	public Menu()
 	{
 		controller = new Controller();
@@ -44,7 +48,6 @@ public class Menu extends JFrame
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		setMinimumSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-		//setResizable(false);
 
 		/* --- Setting up listeners for all the UI components that need them. --- */
 
@@ -93,7 +96,7 @@ public class Menu extends JFrame
 			tfStatus.setText("Compressing image, please wait...");
 			tfStatus.paintImmediately(tfStatus.getBounds());
 
-			if(!controller.compressImage(compressionPercent, false))
+			if(!controller.compressToPercent(compressionPercent, false))
 			{
 				//compression failed?
 				JOptionPane.showMessageDialog(null, "Failed to compress image.");
@@ -158,7 +161,7 @@ public class Menu extends JFrame
 				tfStatus.setText("Compressing image, please wait...");
 				tfStatus.paintImmediately(tfStatus.getBounds());
 
-				if(!controller.compressImage(compressionPercent, true))
+				if(!controller.compressToPercent(compressionPercent, true))
 				{
 					//compression failed?
 					JOptionPane.showMessageDialog(null, "Failed to compress image.");
@@ -171,7 +174,7 @@ public class Menu extends JFrame
 
 				if(!controller.saveAnimationAsGIF(f))
 				{
-					//animation failed
+					//animation failed?
 					JOptionPane.showMessageDialog(null, "Failed to save animation.");
 					tfStatus.setText("Could not save animation.");
 					return;
@@ -283,7 +286,9 @@ public class Menu extends JFrame
 		});
 	}
 
-	/* Used to customize the drawing of the panel that the image is displayed in. */
+	/**
+	 *  Custom creation of the panel that holds the image to be displayed.
+	 */
 	private void createUIComponents()
 	{
 		pImage = new JPanel()
@@ -297,6 +302,9 @@ public class Menu extends JFrame
 		};
 	}
 
+	/**
+	 * Scales the current image to fill as much of its containing panel as possible without changing the aspect ratio.
+	 */
 	private void scaleImage()
 	{
 		if(image == null) return;
