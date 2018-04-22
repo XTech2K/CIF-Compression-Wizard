@@ -1,4 +1,5 @@
 import javafx.util.Pair;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -10,8 +11,8 @@ import java.util.TreeSet;
 
 public class ImageRegions extends DisjointSets {
 
-    private static final int[][] FORWARD_ADJACENT = {{1,0},{1,1},{0,1},{-1,1}};
-    private static final int[][] ALL_ADJACENT = {{1,0},{1,1},{0,1},{-1,1},{1,-1},{0,-1},{-1,-1},{-1,0}};
+    private static final int[][] FORWARD_ADJACENT = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}};
+    private static final int[][] ALL_ADJACENT = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}};
 
     private final BufferedImage image;
     private Region[] regions;
@@ -79,9 +80,10 @@ public class ImageRegions extends DisjointSets {
         regions = Region.copy(regionsArch);
 
     }
- 
+
     /**
      * Grabs the ordinal number of the supplied pixel. Ex: pixel A is the 5th pixel.
+     *
      * @param p the pixel to get the order of
      * @return the ordinal number of the pixel
      */
@@ -91,6 +93,7 @@ public class ImageRegions extends DisjointSets {
 
     /**
      * Union two disjoint sets using the union by rank heuristic covered in CS 310 from the textbook.
+     *
      * @param root1 the root of set 1
      * @param root2 the root of set 2
      * @return the root of the resulting set
@@ -106,9 +109,10 @@ public class ImageRegions extends DisjointSets {
         return finalRoot;
 
     }
- 
+
     /**
      * Finds the region in which a provided root index lies
+     *
      * @param root the provided integer array index to a root
      * @return the region that the root makes up
      */
@@ -119,7 +123,8 @@ public class ImageRegions extends DisjointSets {
 
     /**
      * Returns the regions adjacent to the provided root of a region
-     * @param root an index to look from
+     *
+     * @param root        an index to look from
      * @param onlyForward True if we only want adjacent regions further ahead
      * @return a treeset of neighboring sets listed by their root
      */
@@ -138,16 +143,17 @@ public class ImageRegions extends DisjointSets {
                     result.add(neighborRoot);
 
             }
-   
+
         }
-  
+
         return result;
-  
+
     }
 
     /**
      * Calculates nearby neighbors of a given pixel
-     * @param pixel the pixel to find neighbors of
+     *
+     * @param pixel   the pixel to find neighbors of
      * @param offsets a list of pairs of x and y offsets for the desired pixels
      * @return an ArrayList of pixels that hold its neighboring pixels
      */
@@ -171,6 +177,7 @@ public class ImageRegions extends DisjointSets {
 
     /**
      * Determines if a given root is actually a root
+     *
      * @param r the root to check
      * @return whether or not int r is a root
      */
@@ -180,14 +187,16 @@ public class ImageRegions extends DisjointSets {
 
     /**
      * Fetches the size of the array s
+     *
      * @return the size of the array s
      */
     public int getMaxSize() {
         return maxRegions;
     }
- 
+
     /**
      * Fetches size of this image region
+     *
      * @return the size of this image region
      */
     public int getSize() {
@@ -196,6 +205,7 @@ public class ImageRegions extends DisjointSets {
 
     /**
      * Fetches the original uncompressed image
+     *
      * @return the uncompressed image
      */
     public BufferedImage getImage() {
@@ -204,6 +214,7 @@ public class ImageRegions extends DisjointSets {
 
     /**
      * Creates a buffered image and sets the value of each pixel in the image to the appropriate new value
+     *
      * @return the compressed image
      */
     public BufferedImage getCompressed() {

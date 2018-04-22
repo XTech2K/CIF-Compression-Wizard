@@ -9,6 +9,7 @@ public class Pixel implements Comparable<Pixel> {
 
     /**
      * compares this pixel to a supplied pixel
+     *
      * @param other the pixel to be comared with
      * @return the sum of the absolute value of the difference between the x components and y components respectively.
      */

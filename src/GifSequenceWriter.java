@@ -24,12 +24,11 @@ public class GifSequenceWriter {
     /**
      * Creates a new GifSequenceWriter
      *
-     * @param outputStream the ImageOutputStream to be written to
-     * @param imageType one of the imageTypes specified in BufferedImage
+     * @param outputStream        the ImageOutputStream to be written to
+     * @param imageType           one of the imageTypes specified in BufferedImage
      * @param timeBetweenFramesMS the time between frames in miliseconds
-     * @param loopContinuously wether the gif should loop repeatedly
+     * @param loopContinuously    wether the gif should loop repeatedly
      * @throws IIOException if no gif ImageWriters are found
-     *
      * @author Elliot Kroo (elliot[at]kroo[dot]net)
      */
     public GifSequenceWriter(
@@ -82,7 +81,7 @@ public class GifSequenceWriter {
 
         int loop = loopContinuously ? 0 : 1;
 
-        child.setUserObject(new byte[]{ 0x1, (byte) (loop & 0xFF), (byte)
+        child.setUserObject(new byte[]{0x1, (byte) (loop & 0xFF), (byte)
                 ((loop >> 8) & 0xFF)});
         appEntensionsNode.appendChild(child);
 
@@ -119,7 +118,7 @@ public class GifSequenceWriter {
      */
     private static ImageWriter getWriter() throws IIOException {
         Iterator<ImageWriter> iter = ImageIO.getImageWritersBySuffix("gif");
-        if(!iter.hasNext()) {
+        if (!iter.hasNext()) {
             throw new IIOException("No GIF Image Writers Exist");
         } else {
             return iter.next();
@@ -132,7 +131,6 @@ public class GifSequenceWriter {
      *
      * @param rootNode the <tt>IIOMetadataNode</tt> to search for the child node.
      * @param nodeName the name of the child node.
-     *
      * @return the child node, if found or a new node created with the given name.
      */
     private static IIOMetadataNode getNode(
@@ -142,21 +140,20 @@ public class GifSequenceWriter {
         for (int i = 0; i < nNodes; i++) {
             if (rootNode.item(i).getNodeName().compareToIgnoreCase(nodeName)
                     == 0) {
-                return((IIOMetadataNode) rootNode.item(i));
+                return ((IIOMetadataNode) rootNode.item(i));
             }
         }
         IIOMetadataNode node = new IIOMetadataNode(nodeName);
         rootNode.appendChild(node);
-        return(node);
+        return (node);
     }
 
     /**
-     public GifSequenceWriter(
-     BufferedOutputStream outputStream,
-     int imageType,
-     int timeBetweenFramesMS,
-     boolean loopContinuously) {
-
+     * public GifSequenceWriter(
+     * BufferedOutputStream outputStream,
+     * int imageType,
+     * int timeBetweenFramesMS,
+     * boolean loopContinuously) {
      */
 
     public static void main(String[] args) throws Exception {
@@ -175,7 +172,7 @@ public class GifSequenceWriter {
 
             // write out the first image to our sequence...
             writer.writeToSequence(firstImage);
-            for(int i=1; i<args.length-1; i++) {
+            for (int i = 1; i < args.length - 1; i++) {
                 BufferedImage nextImage = ImageIO.read(new File(args[i]));
                 writer.writeToSequence(nextImage);
             }
