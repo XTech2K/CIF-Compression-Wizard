@@ -19,8 +19,9 @@ public class Menu extends JFrame {
     private JTextField tPercent;
     private JButton bAnimate;
     private JTextField tfStatus;
+	private JCheckBox cRegion;
 
-    public static final int DEFAULT_WIDTH = 800;
+	public static final int DEFAULT_WIDTH = 800;
     public static final int DEFAULT_HEIGHT = 800;
 
     private int drawx, drawy;    //coordinate pair to start drawing the image at (used to center the image in the panel)
@@ -31,6 +32,7 @@ public class Menu extends JFrame {
     private Image scaledImage;
     private String filename;
     private int compressionPercent;
+    private boolean regions;
 
     /* --- Reference to a Controller for the Menu to interact with the Compression program. --- */
     private Controller controller;
@@ -41,6 +43,7 @@ public class Menu extends JFrame {
      */
     public Menu() {
         controller = new Controller();
+		regions = false;
 
         setContentPane(pWindow);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -91,19 +94,44 @@ public class Menu extends JFrame {
             tfStatus.setText("Compressing image, please wait...");
             tfStatus.paintImmediately(tfStatus.getBounds());
 
-            if (!controller.compressToPercent(compressionPercent, false)) {
-                //compression failed?
-                JOptionPane.showMessageDialog(null, "Failed to compress image.");
-                return;
-            }
+            if(regions)
+			{
+				String s = JOptionPane.showInputDialog("Compress to how many regions?");
+				int r;
+				try {
+					r = Integer.parseInt(s);
+				} catch (NumberFormatException nfe) {
+					JOptionPane.showMessageDialog(null, "Could not read your input as a number.");
+					tfStatus.setText("Compression failed.");
+					return;
+				}
+
+				if(!controller.compressToRegions(r, false))
+				{
+					//compression failed?
+					JOptionPane.showMessageDialog(null, "Failed to compress image.");
+					tfStatus.setText("Compression failed.");
+					return;
+				}
+
+				tfStatus.setText("Compression finished - now at " + r + " regions.");
+
+			} else {
+            	if (!controller.compressToPercent(compressionPercent, false)) {
+					//compression failed?
+					JOptionPane.showMessageDialog(null, "Failed to compress image.");
+					tfStatus.setText("Compression failed.");
+					return;
+				}
+
+				tfStatus.setText("Compression finished - now at " + compressionPercent + "% compression.");
+			}
 
             //store the new compressed image
             image = controller.getCompressedImage();
 
             //update scaledImage so that subsequent repaints show the new, compressed image
             scaleImage();
-
-            tfStatus.setText("Compression finished - now at " + compressionPercent + "% compression.");
 
             //need to force a repaint of the window, otherwise it would wait until window is dirty (which takes too long)
             revalidate();
@@ -152,7 +180,29 @@ public class Menu extends JFrame {
                 tfStatus.setText("Compressing image, please wait...");
                 tfStatus.paintImmediately(tfStatus.getBounds());
 
-                if (!controller.compressToPercent(compressionPercent, true)) {
+				if(regions)
+				{
+					String s = JOptionPane.showInputDialog("Compress to how many regions?");
+					int r;
+					try
+					{
+						r = Integer.parseInt(s);
+					}
+					catch(NumberFormatException nfe)
+					{
+						JOptionPane.showMessageDialog(null, "Could not read your input as a number.");
+						tfStatus.setText("Compression failed.");
+						return;
+					}
+
+					if(!controller.compressToRegions(r, false))
+					{
+						//compression failed?
+						JOptionPane.showMessageDialog(null, "Failed to compress image.");
+						tfStatus.setText("Compression failed.");
+						return;
+					}
+				} else if (!controller.compressToPercent(compressionPercent, true)) {
                     //compression failed?
                     JOptionPane.showMessageDialog(null, "Failed to compress image.");
                     tfStatus.setText("Compression failed.");
@@ -199,69 +249,14 @@ public class Menu extends JFrame {
             }
         });
 
-		/* --- Secret :) --- */
-        aCompressAmount.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                if (e.isAltDown()) {
-                    //if we don't have an image loaded, don't allow animation!
-                    if (image == null) return;
-
-                    String s = JOptionPane.showInputDialog("You found a secret! Compress to how many regions?");
-                    int r;
-                    try {
-                        r = Integer.parseInt(s);
-                    } catch (NumberFormatException nfe) {
-                        JOptionPane.showMessageDialog(null, "Could not read your input as a number.");
-                        return;
-                    }
-
-                    String userHomeDir = System.getProperty("user.home");
-                    JFileChooser jfc = new JFileChooser(userHomeDir + "/Pictures");
-                    jfc.setFileFilter(new FileNameExtensionFilter("gif", "gif"));
-
-                    //create a default filename for the new image based on the current filename
-                    String file = filename.substring(0, filename.lastIndexOf(".")) + "-compression.gif";
-                    jfc.setSelectedFile(new File(file));
-
-                    if (jfc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-                        File f = jfc.getSelectedFile();
-
-                        tfStatus.setText("Compressing image, please wait...");
-                        tfStatus.paintImmediately(tfStatus.getBounds());
-
-                        if (!controller.compressToRegions(r, true)) {
-                            //compression failed?
-                            JOptionPane.showMessageDialog(null, "Failed to compress image.");
-                            tfStatus.setText("Compression failed.");
-                            return;
-                        }
-
-                        tfStatus.setText("Creating animation, please wait...");
-                        tfStatus.paintImmediately(tfStatus.getBounds());
-
-                        if (!controller.saveAnimationAsGIF(f)) {
-                            //animation failed
-                            JOptionPane.showMessageDialog(null, "Failed to save animation.");
-                            tfStatus.setText("Could not save animation.");
-                            return;
-                        }
-
-                        image = controller.getCompressedImage();
-
-                        scaleImage();
-
-                        tfStatus.setText("Finished saving animation to file: " + f.getName());
-
-                        //need to force a repaint of the window, otherwise it would wait until window is dirty (which takes too long)
-                        revalidate();
-                        repaint();
-                    }
-                }
-            }
-        });
-    }
+		cRegion.addActionListener(e -> {
+			regions = !regions;
+			if(regions)
+				sPercent.setEnabled(false);
+			else
+				sPercent.setEnabled(true);
+		});
+	}
 
     /**
      * Custom creation of the panel that holds the image to be displayed.

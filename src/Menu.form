@@ -72,6 +72,15 @@
                   <toolTipText value="The percent that the image will be compressed."/>
                 </properties>
               </component>
+              <component id="9d2be" class="javax.swing.JCheckBox" binding="cRegion">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Regions?"/>
+                  <toolTipText value="Check this box to compress down to a number of regions instead of a percentage of the image."/>
+                </properties>
+              </component>
             </children>
           </grid>
           <hspacer id="581a3">
