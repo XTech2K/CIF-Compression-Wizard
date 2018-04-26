@@ -195,7 +195,7 @@ public class Menu extends JFrame {
 						return;
 					}
 
-					if(!controller.compressToRegions(r, false))
+					if(!controller.compressToRegions(r, true))
 					{
 						//compression failed?
 						JOptionPane.showMessageDialog(null, "Failed to compress image.");

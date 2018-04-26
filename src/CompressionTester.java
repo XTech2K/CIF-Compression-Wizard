@@ -12,7 +12,7 @@ public class CompressionTester {
         Controller c = new Controller();
         System.out.println(c.setImageFile(inFile));
 
-        System.out.println(c.compressToPercent(Integer.parseInt(args[2]), false));
+        System.out.println(c.compressToRegions(Integer.parseInt(args[2]), true));
 
         System.out.println(c.saveImageAsPNG(outFile));
 
