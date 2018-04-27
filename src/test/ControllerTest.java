@@ -43,24 +43,20 @@ public class ControllerTest implements Testable
 	}
 
 	/**
-	 * Tests 3 cases - invalid file, png file, and jpg file.
+	 * Tests 2 cases - png file, and jpg file.
 	 */
 	public void testCompressToPercent()
 	{
-		//fail if compressToPercent tries to compress bad file
-		System.out.print("compressToPercent test 1: ");
-		c.setImageFile(new File("res/text.txt"));
-		String s = c.compressToPercent(25, false) ? "FAIL" : "pass";
-		System.out.println(s);
+		//setImageFile would fail on a bad file, so compressToPercent doesn't need to check for it
 
 		//fail if compressToPercent doesn't compress png
-		System.out.print("compressToPercent test 2: ");
+		System.out.print("compressToPercent test 1: ");
 		c.setImageFile(new File("res/hedgehog.png"));
-		s = c.compressToPercent(25, false) ? "pass" : "FAIL";
+		String s = c.compressToPercent(25, false) ? "pass" : "FAIL";
 		System.out.println(s);
 
 		//fail if compressToPercent doesn't compress jpg
-		System.out.print("compressToPercent test 3: ");
+		System.out.print("compressToPercent test 2: ");
 		c.setImageFile(new File("res/pikachu.jpg"));
 		s = c.compressToPercent(25, false) ? "pass" : "FAIL";
 		System.out.println(s);
@@ -73,34 +69,30 @@ public class ControllerTest implements Testable
 	 */
 	public void testCompressToRegions()
 	{
-		//fail if compressToRegions tries to compress bad file
-		System.out.print("compressToRegions test 1: ");
-		c.setImageFile(new File("res/text.txt"));
-		String s = c.compressToRegions(25, false) ? "FAIL" : "pass";
-		System.out.println(s);
+		//setImageFile would fail on a bad file, so compressToPercent doesn't need to check for it
 
 		//fail if compressToRegions doesn't compress png
-		System.out.print("compressToRegions test 2: ");
+		System.out.print("compressToRegions test 1: ");
 		c.setImageFile(new File("res/hedgehog.png"));
-		s = c.compressToRegions(25, false) ? "pass" : "FAIL";
+		String s = c.compressToRegions(100000, false) ? "pass" : "FAIL";
 		System.out.println(s);
 
 		//fail if compressToRegions doesn't compress jpg
-		System.out.print("compressToRegions test 3: ");
+		System.out.print("compressToRegions test 2: ");
 		c.setImageFile(new File("res/pikachu.jpg"));
-		s = c.compressToRegions(25, false) ? "pass" : "FAIL";
+		s = c.compressToRegions(25000, false) ? "pass" : "FAIL";
 		System.out.println(s);
 
 		//Bad numerical inputs CAN make it to the Controller for compressToRegions, so test some boundaries
 
 		//compressToRegions should turn input of 0 into input of 1 - pass on true, fail on false
-		System.out.print("compressToRegions test 4: ");
+		System.out.print("compressToRegions test 3: ");
 		s = c.compressToRegions(0, false) ? "pass" : "FAIL";
 		System.out.println(s);
 
 		//compressToRegions should fail on negative numbers
-		System.out.print("compressToRegions test 5: ");
-		s = c.compressToRegions(0, false) ? "FAIL" : "pass";
+		System.out.print("compressToRegions test 4: ");
+		s = c.compressToRegions(-10, false) ? "FAIL" : "pass";
 		System.out.println(s);
 
 		//compressToRegions should fail on numbers greater than the number of regions in the base image

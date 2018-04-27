@@ -24,10 +24,12 @@ public class Controller {
      */
     public boolean setImageFile(File f) {
         try {
-            ir = new ImageRegions(f);
+        	BufferedImage i = ImageIO.read(f);
+            ir = new ImageRegions(i);
             compressor = new Compressor(ir);
             return true;
-        } catch (IOException E) {
+        } catch (Exception e) {
+        	//IOException or IllegalArgumentException
             return false;
         }
     }
