@@ -87,6 +87,7 @@ public class ControllerTest implements Testable
 
 		//compressToRegions should turn input of 0 into input of 1 - pass on true, fail on false
 		System.out.print("compressToRegions test 3: ");
+		c.setImageFile(new File("res/hedgehog.png"));	//pikachu was taking too long on this test (over a minute)
 		s = c.compressToRegions(0, false) ? "pass" : "FAIL";
 		System.out.println(s);
 
