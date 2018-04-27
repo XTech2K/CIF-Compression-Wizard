@@ -1,0 +1,1 @@
+This is a text file to test how setImageFile handles files that are not readable images.
