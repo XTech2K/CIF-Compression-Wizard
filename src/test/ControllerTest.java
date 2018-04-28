@@ -18,7 +18,6 @@ public class ControllerTest implements Testable
 		testSetImageFile();
 		testCompressToPercent();
 		testCompressToRegions();
-		//TODO: Nhu, add your test functions here
 	}
 
 	/**
