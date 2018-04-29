@@ -17,6 +17,7 @@ public class TestDriver
 		//tests.add(new ExampleTest());
 
 		tests.add(new ControllerTest());
+		tests.add(new ImageRegionsTest());
 
 		for(Testable t : tests)
 		{
